@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration and Messaging</title>
+</head>
+<body>
+<h1>Welcome to the Messenger App</h1>
+
+<!-- User Registration Form -->
+<h2>Register</h2>
+<form id="registerForm">
+    <label for="username">Username: </label>
+    <input type="text" id="username" name="username" required><br><br>
+
+    <label for="password">Password: </label>
+    <input type="password" id="password" name="password" required><br><br>
+
+    <button type="submit">Register</button>
+</form>
+
+<hr>
+
+<!-- Send Message Form -->
+<h2>Send Message</h2>
+<form id="sendMessageForm">
+    <label for="sendUsername">Username: </label>
+    <input type="text" id="sendUsername" name="username" required><br><br>
+
+    <label for="message">Message: </label>
+    <input type="text" id="message" name="message" required><br><br>
+
+    <button type="submit">Send Message</button>
+</form>
+
+<hr>
+
+<!-- View Messages Form -->
+<h2>View Messages</h2>
+<form id="viewMessagesForm">
+    <label for="viewUsername">Username: </label>
+    <input type="text" id="viewUsername" name="username" required><br><br>
+
+    <label for="viewPassword">Password: </label>
+    <input type="password" id="viewPassword" name="password" required><br><br>
+
+    <button type="submit">View Messages</button>
+</form>
+
+<div id="response"></div>
+
+<script>
+    // Handle user registration
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        fetch('/user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        })
+        .then(response => {
+            if (response.status === 403) {
+                alert("Username already exists");
+            } else {
+                alert("Registration successful");
+            }
+        })
+        .catch(error => console.error(error));
+    });
+
+    // Handle sending message
+    document.getElementById('sendMessageForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('sendUsername').value;
+        const message = document.getElementById('message').value;
+
+        fetch('/message', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, message })
+        })
+        .then(response => {
+            if (response.status === 403) {
+                alert("Message invalid or user not found");
+            } else {
+                alert("Message sent successfully");
+            }
+        })
+        .catch(error => console.error(error));
+    });
+
+    // Handle viewing messages
+    document.getElementById('viewMessagesForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('viewUsername').value;
+        const password = document.getElementById('viewPassword').value;
+
+        fetch(`/message?username=${username}&password=${password}`, {
+            method: 'GET',
+        })
+        .then(response => response.json())
+        .then(data => {
+            let messageList = '';
+            data.messages.forEach(message => {
+                messageList += `<p>${message}</p>`;
+            });
+            document.getElementById('response').innerHTML = messageList;
+        })
+        .catch(error => console.error(error));
+    });
+</script>
+</body>
+</html>
